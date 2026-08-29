@@ -261,41 +261,51 @@
 
 <svelte:head><title>{data.project.name} · MS Project Replica</title></svelte:head>
 
-<main class="workspace">
-	<header class="workspace-head">
+<main class="mx-auto max-w-[1400px] px-4 py-6 pb-20 sm:px-[4vw] sm:py-10">
+	<header class="mb-8 flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
 		<div>
-			<a class="back" href="/projects">← All projects</a>
-			<p class="eyebrow">{data.project.role} workspace</p>
-			<h1>{data.project.name}</h1>
-			<p class="muted">Project starts {data.project.startDate} · {tasks.length} tasks</p>
+			<a class="link link-hover text-sm text-base-content/60" href="/projects">← All projects</a>
+			<p class="mt-6 mb-3 text-xs font-extrabold tracking-[0.16em] text-accent uppercase">
+				{data.project.role} workspace
+			</p>
+			<h1 class="text-4xl leading-none font-bold tracking-[-0.08em] sm:text-6xl">
+				{data.project.name}
+			</h1>
+			<p class="mt-3 text-base-content/60">
+				Project starts {data.project.startDate} · {tasks.length} tasks
+			</p>
 		</div>
-		<div class="head-actions">
-			<select bind:value={inviteRole} aria-label="Invite role"
+		<div class="flex flex-wrap items-center gap-2">
+			<select class="select select-bordered select-sm" bind:value={inviteRole} aria-label="Invite role"
 				><option value="member">Member invite</option><option value="manager">Manager invite</option
 				></select
-			><button class="secondary" onclick={createInvite}>Copy invite link</button
-			>{#if data.project.role !== 'member'}<button class="quiet" onclick={renameProject}
+			><button class="btn btn-secondary btn-pill" onclick={createInvite}>Copy invite link</button
+			>{#if data.project.role !== 'member'}<button class="btn btn-ghost btn-sm" onclick={renameProject}
 					>Rename</button
-				><button class="quiet" onclick={archiveProject}>Archive</button
+				><button class="btn btn-ghost btn-sm" onclick={archiveProject}>Archive</button
 				>{/if}{#if data.project.role === 'owner'}<button
-					class="danger-button"
+					class="btn btn-error btn-ghost btn-sm"
 					onclick={deleteProject}>Delete</button
 				>{/if}
 		</div>
 	</header>
-	{#if inviteUrl}<p class="invite-result">{inviteUrl}</p>{/if}
-	{#if notice}<div class="toast" role="status">{notice}</div>{/if}
-	{#if errorMessage}<div class="error" role="alert">{errorMessage}</div>{/if}
+	{#if inviteUrl}<div class="alert alert-info alert-soft mb-4 break-all">{inviteUrl}</div>{/if}
+	{#if notice}<div class="alert alert-success alert-soft mb-4" role="status">{notice}</div>{/if}
+	{#if errorMessage}<div class="alert alert-error alert-soft mb-4" role="alert">{errorMessage}</div>{/if}
 
-	<section class="toolbar">
-		<div class="tabs">
-			<button class:active={view === 'table'} onclick={() => (view = 'table')}>Table</button><button
-				class:active={view === 'gantt'}
-				onclick={() => (view = 'gantt')}>Gantt</button
+	<section class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+		<div role="tablist" class="tabs tabs-box">
+			<button role="tab" class:tab-active={view === 'table'} class="tab" onclick={() => (view = 'table')}
+				>Table</button
+			><button role="tab" class:tab-active={view === 'gantt'} class="tab" onclick={() => (view = 'gantt')}
+				>Gantt</button
 			>
 		</div>
-		<div class="filters">
-			<span>Show</span><select bind:value={filter} aria-label="Task filter"
+		<div class="flex flex-wrap items-center gap-2">
+			<span class="text-sm text-base-content/60">Show</span><select
+				class="select select-bordered select-sm"
+				bind:value={filter}
+				aria-label="Task filter"
 				><option value="all">All tasks</option><option value="mine">My tasks</option
 				>{#each data.members as member}<option value={member.userId}>{member.name}</option
 					>{/each}</select
@@ -303,52 +313,71 @@
 		</div>
 	</section>
 
-	<section class="card add-task">
-		<input
-			bind:value={title}
-			placeholder="Add a task…"
-			aria-label="New task title"
-			onkeydown={(event) => event.key === 'Enter' && createTask()}
-		/>
-		<input type="date" bind:value={startDate} aria-label="New task start date" /><input
-			type="date"
-			bind:value={dueDate}
-			aria-label="New task due date"
-		/>
-		<select bind:value={assigneeId} aria-label="New task assignee"
+	<section class="card card-border mb-4 bg-base-100 shadow-md">
+		<div class="card-body flex flex-wrap items-center gap-3 p-3">
+			<input
+				class="input input-bordered min-w-[250px] flex-[2_1_250px]"
+				bind:value={title}
+				placeholder="Add a task…"
+				aria-label="New task title"
+				onkeydown={(event) => event.key === 'Enter' && createTask()}
+			/>
+			<input
+				class="input input-bordered min-w-[130px] flex-1"
+				type="date"
+				bind:value={startDate}
+				aria-label="New task start date"
+			/><input
+				class="input input-bordered min-w-[130px] flex-1"
+				type="date"
+				bind:value={dueDate}
+				aria-label="New task due date"
+			/>
+			<select
+				class="select select-bordered min-w-[130px] flex-1"
+				bind:value={assigneeId}
+				aria-label="New task assignee"
 			><option value="">Unassigned</option>{#each data.members as member}<option
 					value={member.userId}>{member.name}</option
 				>{/each}</select
 		>
-		<select bind:value={priority} aria-label="New task priority"
+			<select
+				class="select select-bordered min-w-[130px] flex-1"
+				bind:value={priority}
+				aria-label="New task priority"
 			><option value="low">Low</option><option value="medium">Medium</option><option value="high"
 				>High</option
 			><option value="urgent">Urgent</option></select
 		>
-		<button class="primary" onclick={createTask} disabled={saving}>Add task</button>
+			<button class="btn btn-primary btn-pill" onclick={createTask} disabled={saving}>Add task</button>
+		</div>
 	</section>
 
 	{#if view === 'table'}
-		<section class="card table-wrap">
-			<table>
-				<thead
-					><tr
-						><th>Task</th><th>Assignee</th><th>Status</th><th>Priority</th><th>Start</th><th>Due</th
-						><th></th></tr
-					></thead
-				>
-				<tbody
-					>{#each visibleTasks() as task}
-						<tr class:overdue={isOverdue(task)}
+		<section class="card card-border bg-base-100 shadow-md">
+			<div class="overflow-x-auto">
+				<table class="table table-md min-w-[900px]">
+					<thead
+						><tr
+							><th>Task</th><th>Assignee</th><th>Status</th><th>Priority</th><th>Start</th><th>Due</th
+							><th></th></tr
+						></thead
+					>
+					<tbody
+						>{#each visibleTasks() as task}
+							<tr class:border-l-4={isOverdue(task)} class:border-error={isOverdue(task)}
 							><td
 								><input
-									class="title-input"
+									class="input input-ghost w-full font-bold focus:input-bordered"
 									value={task.title}
 									onchange={(event) => updateTask(task.id, { title: event.currentTarget.value })}
-								/>{#if task.milestone}<span class="milestone-label">◆ milestone</span>{/if}</td
+								/>{#if task.milestone}<span class="badge badge-accent badge-soft badge-sm"
+									>◆ milestone</span
+								>{/if}</td
 							>
 							<td
 								><select
+									class="select select-ghost w-full focus:select-bordered"
 									value={task.assigneeId ?? ''}
 									onchange={(event) =>
 										updateTask(task.id, { assigneeId: event.currentTarget.value || null })}
@@ -359,6 +388,7 @@
 							>
 							<td
 								><select
+									class="select select-ghost w-full focus:select-bordered"
 									value={task.status}
 									onchange={(event) => updateTask(task.id, { status: event.currentTarget.value })}
 									><option value="todo">To do</option><option value="in_progress"
@@ -369,6 +399,7 @@
 							>
 							<td
 								><select
+									class="select select-ghost w-full focus:select-bordered"
 									value={task.priority}
 									onchange={(event) => updateTask(task.id, { priority: event.currentTarget.value })}
 									><option value="low">Low</option><option value="medium">Medium</option><option
@@ -378,6 +409,7 @@
 							>
 							<td
 								><input
+									class="input input-ghost w-full focus:input-bordered"
 									type="date"
 									value={task.startDate ?? ''}
 									onchange={(event) =>
@@ -386,29 +418,34 @@
 							>
 							<td
 								><input
+									class="input input-ghost w-full focus:input-bordered"
 									type="date"
 									value={task.dueDate ?? ''}
 									onchange={(event) =>
 										updateTask(task.id, { dueDate: event.currentTarget.value || null })}
-								/>{#if isOverdue(task)}<span class="badge overdue-badge">Overdue</span
-									>{:else if task.dueDate === today}<span class="badge today-badge">Due today</span
+								/>{#if isOverdue(task)}<span class="badge badge-error badge-soft badge-sm">Overdue</span
+									>{:else if task.dueDate === today}<span class="badge badge-warning badge-soft badge-sm"
+										>Due today</span
 									>{/if}</td
 							>
 							<td
 								><button
-									class="icon-button"
+									class="btn btn-error btn-ghost btn-sm btn-square"
 									aria-label={`Delete ${task.title}`}
 									onclick={() => deleteTask(task)}>×</button
 								></td
 							></tr
 						>
-					{:else}<tr><td colspan="7" class="empty-row">No tasks match this filter.</td></tr
+					{:else}<tr><td colspan="7" class="py-12 text-center text-base-content/60"
+							>No tasks match this filter.</td
+						></tr
 						>{/each}</tbody
 				>
 			</table>
+			</div>
 		</section>
 	{:else}
-		<section class="card gantt-wrap">
+		<section class="card card-border overflow-hidden bg-base-100 shadow-md">
 			{#if GanttComponent}
 				<div class="svar-gantt">
 					<GanttComponent
@@ -427,338 +464,40 @@
 						onaddLink={handleGanttLink}
 					/>
 				</div>
-			{:else}<p class="empty-row">Loading Gantt…</p>{/if}
-			<p class="gantt-help">
+			{:else}<p class="py-12 text-center text-base-content/60">Loading Gantt…</p>{/if}
+			<p class="m-4 text-sm text-base-content/60">
 				SVAR Gantt is client-only to avoid SSR hydration mismatch. Move/resize a bar to preview and
 				confirm a date change; dependency links are FS in Phase 1.
 			</p>
 		</section>
 	{/if}
 
-	<section class="members-panel card">
-		<div>
-			<p class="eyebrow">TEAM</p>
-			<h2>{data.members.length} project members</h2>
-		</div>
-		<div class="member-list">
-			{#each data.members as member}<div class="member-row">
-					<div><strong>{member.name}</strong><small>{member.email}</small></div>
-					<div class="member-role">
-						<span class="role-chip">{member.role}</span
+	<section class="card card-border mt-4 bg-base-100 shadow-md">
+		<div class="card-body grid gap-4 p-5 lg:grid-cols-[220px_1fr]">
+			<div>
+				<p class="mb-2 text-xs font-extrabold tracking-[0.16em] text-accent uppercase">TEAM</p>
+				<h2 class="text-xl font-bold">{data.members.length} project members</h2>
+			</div>
+			<div class="grid gap-2">
+				{#each data.members as member}<div
+						class="flex items-center justify-between gap-3 border-b border-base-300 py-2"
+					>
+						<div><strong>{member.name}</strong><small class="mt-1 block text-xs text-base-content/60"
+								>{member.email}</small
+							></div>
+						<div class="flex items-center gap-2">
+							<span class="badge badge-secondary badge-soft badge-sm">{member.role}</span
 						>{#if data.project.role === 'owner' && member.role !== 'owner'}<select
-								value={member.role}
-								aria-label={`Role for ${member.name}`}
+									class="select select-bordered select-sm"
+									value={member.role}
+									aria-label={`Role for ${member.name}`}
 								onchange={(event) => changeRole(member.userId, event.currentTarget.value)}
-								><option value="member">Member</option><option value="manager">Manager</option
-								></select
+									><option value="member">Member</option><option value="manager">Manager</option
+									></select
 							>{/if}
-					</div>
-				</div>{/each}
+						</div>
+					</div>{/each}
+			</div>
 		</div>
 	</section>
 </main>
-
-<style>
-	:global(body) {
-		margin: 0;
-		background: #f5f6f2;
-		color: #17211b;
-		font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-	}
-	.workspace {
-		margin: 0 auto;
-		max-width: 1400px;
-		padding: 2.5rem 4vw 5rem;
-	}
-	.workspace-head {
-		align-items: end;
-		display: flex;
-		justify-content: space-between;
-		gap: 2rem;
-		margin-bottom: 2rem;
-	}
-	.back {
-		color: #68756b;
-		font-size: 0.85rem;
-		text-decoration: none;
-	}
-	.eyebrow {
-		color: #d95f35;
-		font-size: 0.72rem;
-		font-weight: 800;
-		letter-spacing: 0.16em;
-		margin: 1.5rem 0 0.7rem;
-		text-transform: uppercase;
-	}
-	h1 {
-		font-size: clamp(2.4rem, 6vw, 5.5rem);
-		letter-spacing: -0.08em;
-		line-height: 0.9;
-		margin: 0;
-	}
-	.muted {
-		color: #68756b;
-	}
-	.head-actions,
-	.toolbar,
-	.filters,
-	.tabs,
-	.add-task {
-		align-items: center;
-		display: flex;
-		gap: 0.6rem;
-	}
-	select,
-	input {
-		border: 1px solid #ccd5cc;
-		border-radius: 0.55rem;
-		box-sizing: border-box;
-		background: white;
-		color: inherit;
-		font: inherit;
-		padding: 0.62rem 0.65rem;
-	}
-	.secondary,
-	.primary,
-	.icon-button,
-	.tabs button {
-		border: 0;
-		cursor: pointer;
-		font: inherit;
-	}
-	.secondary {
-		background: #e6eee6;
-		border-radius: 999px;
-		color: #36513d;
-		font-weight: 750;
-		padding: 0.75rem 1rem;
-	}
-	.quiet,
-	.danger-button {
-		background: transparent;
-		border: 0;
-		color: #68756b;
-		cursor: pointer;
-		font: inherit;
-		font-size: 0.82rem;
-		font-weight: 700;
-		padding: 0.5rem;
-	}
-	.danger-button {
-		color: #a53e20;
-	}
-	.primary {
-		background: #17211b;
-		border-radius: 999px;
-		color: #fff;
-		font-weight: 750;
-		padding: 0.72rem 1rem;
-	}
-	.primary:disabled {
-		opacity: 0.5;
-	}
-	.invite-result,
-	.toast,
-	.error {
-		border-radius: 0.6rem;
-		margin: 0 0 1rem;
-		padding: 0.7rem 0.9rem;
-	}
-	.invite-result,
-	.toast {
-		background: #e6eee6;
-		color: #36513d;
-		overflow-wrap: anywhere;
-	}
-	.error {
-		background: #fff0eb;
-		color: #a53e20;
-	}
-	.toolbar {
-		justify-content: space-between;
-		margin-bottom: 1rem;
-	}
-	.tabs {
-		background: #e8ece6;
-		border-radius: 999px;
-		padding: 0.25rem;
-	}
-	.tabs button {
-		background: transparent;
-		border-radius: 999px;
-		color: #68756b;
-		padding: 0.55rem 0.9rem;
-	}
-	.tabs button.active {
-		background: white;
-		color: #17211b;
-		font-weight: 750;
-	}
-	.filters span {
-		color: #68756b;
-		font-size: 0.85rem;
-	}
-	.card {
-		background: #fff;
-		border: 1px solid #dfe4dd;
-		border-radius: 1.1rem;
-		box-shadow: 0 1rem 3rem #26372b0b;
-	}
-	.add-task {
-		flex-wrap: wrap;
-		margin-bottom: 1rem;
-		padding: 0.7rem;
-	}
-	.add-task input:first-child {
-		flex: 2 1 250px;
-	}
-	.add-task input,
-	.add-task select {
-		flex: 1 1 130px;
-	}
-	.table-wrap {
-		overflow-x: auto;
-	}
-	table {
-		border-collapse: collapse;
-		min-width: 900px;
-		width: 100%;
-	}
-	th {
-		color: #68756b;
-		font-size: 0.7rem;
-		letter-spacing: 0.08em;
-		padding: 1rem 0.8rem 0.7rem;
-		text-align: left;
-		text-transform: uppercase;
-	}
-	td {
-		border-top: 1px solid #edf0eb;
-		padding: 0.7rem 0.8rem;
-		vertical-align: middle;
-	}
-	td input,
-	td select {
-		border-color: transparent;
-		background: transparent;
-		padding: 0.45rem;
-		width: 100%;
-	}
-	td input:focus,
-	td select:focus {
-		background: #f7faf6;
-		border-color: #ccd5cc;
-		outline: none;
-	}
-	.title-input {
-		font-weight: 700;
-		min-width: 180px;
-	}
-	.milestone-label {
-		color: #a05b24;
-		display: block;
-		font-size: 0.7rem;
-		margin: 0.25rem 0.45rem 0;
-	}
-	.overdue td:first-child {
-		box-shadow: inset 3px 0 #cf5d3d;
-	}
-	.badge {
-		border-radius: 999px;
-		display: inline-block;
-		font-size: 0.65rem;
-		font-weight: 800;
-		margin-left: 0.35rem;
-		padding: 0.2rem 0.4rem;
-		white-space: nowrap;
-	}
-	.overdue-badge {
-		background: #fff0eb;
-		color: #a53e20;
-	}
-	.today-badge {
-		background: #fff6d9;
-		color: #896a16;
-	}
-	.icon-button {
-		background: transparent;
-		color: #a53e20;
-		font-size: 1.3rem;
-		padding: 0.2rem 0.5rem;
-	}
-	.empty-row {
-		color: #68756b;
-		padding: 3rem;
-		text-align: center;
-	}
-	.gantt-wrap {
-		overflow: hidden;
-		padding: 1rem;
-	}
-	.gantt-help {
-		color: #8a958d;
-		font-size: 0.78rem;
-		margin: 1rem 0.5rem 0.2rem;
-	}
-	.members-panel {
-		display: grid;
-		gap: 1rem;
-		grid-template-columns: 220px 1fr;
-		margin-top: 1rem;
-		padding: 1.25rem;
-	}
-	.members-panel h2 {
-		font-size: 1.2rem;
-	}
-	.members-panel .eyebrow {
-		margin: 0 0 0.5rem;
-	}
-	.member-list {
-		display: grid;
-		gap: 0.4rem;
-	}
-	.member-row {
-		align-items: center;
-		border-bottom: 1px solid #edf0eb;
-		display: flex;
-		justify-content: space-between;
-		padding: 0.45rem 0;
-	}
-	.member-row small {
-		color: #8a958d;
-		display: block;
-		font-size: 0.75rem;
-		margin-top: 0.15rem;
-	}
-	.member-role {
-		align-items: center;
-		display: flex;
-		gap: 0.5rem;
-	}
-	.role-chip {
-		background: #edf3ed;
-		border-radius: 999px;
-		color: #5e7666;
-		font-size: 0.7rem;
-		font-weight: 800;
-		padding: 0.3rem 0.55rem;
-		text-transform: uppercase;
-	}
-	@media (max-width: 760px) {
-		.workspace {
-			padding: 1.5rem 1rem 3rem;
-		}
-		.workspace-head {
-			align-items: start;
-			flex-direction: column;
-		}
-		.head-actions {
-			flex-wrap: wrap;
-		}
-	}
-	@media (max-width: 760px) {
-		.members-panel {
-			grid-template-columns: 1fr;
-		}
-	}
-</style>
