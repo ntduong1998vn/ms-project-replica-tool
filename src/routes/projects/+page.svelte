@@ -50,7 +50,7 @@
 				<fieldset class="fieldset min-w-0 flex-1 basis-56">
 					<label class="fieldset-legend" for="project-name">Project name</label><input
 						id="project-name"
-						class="input input-bordered w-full"
+						class="input border-base-300 w-full"
 						bind:value={name}
 						placeholder="Website launch"
 						required
@@ -59,7 +59,7 @@
 				<fieldset class="fieldset min-w-0 flex-1 basis-56">
 					<label class="fieldset-legend" for="project-start">Start date</label><input
 						id="project-start"
-						class="input input-bordered w-full"
+						class="input border-base-300 w-full"
 						type="date"
 						bind:value={startDate}
 						required

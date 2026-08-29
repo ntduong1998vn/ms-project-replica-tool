@@ -276,7 +276,7 @@
 			</p>
 		</div>
 		<div class="flex flex-wrap items-center gap-2">
-			<select class="select select-bordered select-sm" bind:value={inviteRole} aria-label="Invite role"
+			<select class="select border-base-300 select-sm" bind:value={inviteRole} aria-label="Invite role"
 				><option value="member">Member invite</option><option value="manager">Manager invite</option
 				></select
 			><button class="btn btn-secondary btn-pill" onclick={createInvite}>Copy invite link</button
@@ -303,7 +303,7 @@
 		</div>
 		<div class="flex flex-wrap items-center gap-2">
 			<span class="text-sm text-base-content/60">Show</span><select
-				class="select select-bordered select-sm"
+				class="select border-base-300 select-sm"
 				bind:value={filter}
 				aria-label="Task filter"
 				><option value="all">All tasks</option><option value="mine">My tasks</option
@@ -316,25 +316,25 @@
 	<section class="card card-border mb-4 bg-base-100 shadow-md">
 		<div class="card-body flex flex-wrap items-center gap-3 p-3">
 			<input
-				class="input input-bordered min-w-[250px] flex-[2_1_250px]"
+				class="input border-base-300 min-w-[250px] flex-[2_1_250px]"
 				bind:value={title}
 				placeholder="Add a task…"
 				aria-label="New task title"
 				onkeydown={(event) => event.key === 'Enter' && createTask()}
 			/>
 			<input
-				class="input input-bordered min-w-[130px] flex-1"
+				class="input border-base-300 min-w-[130px] flex-1"
 				type="date"
 				bind:value={startDate}
 				aria-label="New task start date"
 			/><input
-				class="input input-bordered min-w-[130px] flex-1"
+				class="input border-base-300 min-w-[130px] flex-1"
 				type="date"
 				bind:value={dueDate}
 				aria-label="New task due date"
 			/>
 			<select
-				class="select select-bordered min-w-[130px] flex-1"
+				class="select border-base-300 min-w-[130px] flex-1"
 				bind:value={assigneeId}
 				aria-label="New task assignee"
 			><option value="">Unassigned</option>{#each data.members as member}<option
@@ -342,7 +342,7 @@
 				>{/each}</select
 		>
 			<select
-				class="select select-bordered min-w-[130px] flex-1"
+				class="select border-base-300 min-w-[130px] flex-1"
 				bind:value={priority}
 				aria-label="New task priority"
 			><option value="low">Low</option><option value="medium">Medium</option><option value="high"
@@ -368,7 +368,7 @@
 							<tr class:border-l-4={isOverdue(task)} class:border-error={isOverdue(task)}
 							><td
 								><input
-									class="input input-ghost w-full font-bold focus:input-bordered"
+									class="input input-ghost w-full font-bold focus:border-base-300"
 									value={task.title}
 									onchange={(event) => updateTask(task.id, { title: event.currentTarget.value })}
 								/>{#if task.milestone}<span class="badge badge-accent badge-soft badge-sm"
@@ -377,7 +377,7 @@
 							>
 							<td
 								><select
-									class="select select-ghost w-full focus:select-bordered"
+									class="select select-ghost w-full focus:border-base-300"
 									value={task.assigneeId ?? ''}
 									onchange={(event) =>
 										updateTask(task.id, { assigneeId: event.currentTarget.value || null })}
@@ -388,7 +388,7 @@
 							>
 							<td
 								><select
-									class="select select-ghost w-full focus:select-bordered"
+									class="select select-ghost w-full focus:border-base-300"
 									value={task.status}
 									onchange={(event) => updateTask(task.id, { status: event.currentTarget.value })}
 									><option value="todo">To do</option><option value="in_progress"
@@ -399,7 +399,7 @@
 							>
 							<td
 								><select
-									class="select select-ghost w-full focus:select-bordered"
+									class="select select-ghost w-full focus:border-base-300"
 									value={task.priority}
 									onchange={(event) => updateTask(task.id, { priority: event.currentTarget.value })}
 									><option value="low">Low</option><option value="medium">Medium</option><option
@@ -409,7 +409,7 @@
 							>
 							<td
 								><input
-									class="input input-ghost w-full focus:input-bordered"
+									class="input input-ghost w-full focus:border-base-300"
 									type="date"
 									value={task.startDate ?? ''}
 									onchange={(event) =>
@@ -418,7 +418,7 @@
 							>
 							<td
 								><input
-									class="input input-ghost w-full focus:input-bordered"
+									class="input input-ghost w-full focus:border-base-300"
 									type="date"
 									value={task.dueDate ?? ''}
 									onchange={(event) =>
@@ -488,7 +488,7 @@
 						<div class="flex items-center gap-2">
 							<span class="badge badge-secondary badge-soft badge-sm">{member.role}</span
 						>{#if data.project.role === 'owner' && member.role !== 'owner'}<select
-									class="select select-bordered select-sm"
+									class="select border-base-300 select-sm"
 									value={member.role}
 									aria-label={`Role for ${member.name}`}
 								onchange={(event) => changeRole(member.userId, event.currentTarget.value)}
