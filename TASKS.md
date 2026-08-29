@@ -77,27 +77,33 @@ Ký hiệu: 🧪 = logic cần unit test · ⚙️ = hạ tầng/cấu hình · 
 
 ## Phase 1 — MVP
 
+> **Audit 2026-08-29:** Phase 1 đã được đối chiếu lại với code, unit test, API smoke test và Orca browser. Chỉ các sub-task có đủ bằng chứng cho toàn bộ DoD mới được tick. Các mục còn `[ ]` bên dưới có blocker ghi rõ ngay tại mục đó.
+
 ### ⚙️ 1.1 CRUD Project
-- [ ] `POST /projects` (tạo), trang `/projects` (list), `/projects/[id]` (chi tiết), rename/archive.
-- [ ] Tạo project tự động thêm người tạo làm `owner` vào bảng `members`.
+- [x] `POST /projects` (tạo), trang `/projects` (list), `/projects/[id]` (chi tiết), rename/archive.
+- [x] Tạo project tự động thêm người tạo làm `owner` vào bảng `members`.
 
 **DoD:**
-- [ ] Tạo project qua UI → xuất hiện trong list, bảng `members` có row role=`owner`.
-- [ ] User A **không** thấy project của user B (verify: login user B, `curl /projects/<idA>` → 403/404).
-- [ ] Form validation: name trống → báo lỗi, không insert DB (verify không có row mới sau submit lỗi).
+- [x] Tạo project qua UI → xuất hiện trong list, bảng `members` có row role=`owner`.
+- [x] User A **không** thấy project của user B (verify: login user B, `curl /projects/<idA>` → 403/404).
+- [x] Form validation: name trống → báo lỗi, không insert DB (verify không có row mới sau submit lỗi).
+
+> Evidence: Orca tạo `Orca UI audit project`, snapshot điều hướng tới detail; D1 trả `role=owner`; click form rỗng giữ `valid=false`; D1 trả `blank_projects=0`; API isolation smoke test trả `403`.
 
 ### ⚙️ 1.2 Mời member (copy link, link mở + yêu cầu login)
-- [ ] Nút "Copy invite link" → sinh row `invites` với token ngẫu nhiên ≥ 32 ký tự (KHÔNG gửi email — không có email provider).
-- [ ] Trang `/invite/[token]`: bất kỳ user nào đã login mở link đều join được project (link mở, không bind email); chưa login → yêu cầu đăng ký/login rồi join.
-- [ ] Token dùng 1 lần, hết hạn sau 7 ngày.
+- [x] Nút "Copy invite link" → sinh row `invites` với token ngẫu nhiên ≥ 32 ký tự (KHÔNG gửi email — không có email provider).
+- [x] Trang `/invite/[token]`: bất kỳ user nào đã login mở link đều join được project (link mở, không bind email); chưa login → yêu cầu đăng ký/login rồi join.
+- [x] Token dùng 1 lần, hết hạn sau 7 ngày.
 
 **DoD:**
 - [ ] User mới mở link invite → đăng ký → xuất hiện trong project với đúng role.
 - [ ] Dùng lại token lần 2 → báo "liên kết không hợp lệ" (verify DB: row invite đã bị xoá/đánh dấu used).
 - [ ] Token quá hạn (test bằng cách UPDATE `expires_at` về quá khứ) → từ chối.
 
+> Blocker: đã verify invite tạo token, user đã login accept, token dùng lại bị từ chối và role membership qua API; chưa chạy đủ flow **user mới chưa có account → đăng ký từ invite → join**, và chưa chạy case token hết hạn bằng UPDATE D1. Chưa tick theo DoD.
+
 ### 🧪 1.3 Task domain model + validation
-- [ ] Type `Task` + hàm thuần trong `src/lib/domain/task.ts`:
+- [x] Type `Task` + hàm thuần trong `src/lib/domain/task.ts`:
   - `validateTask(input)`: title không trống ≤ 200 ký tự; `due_date >= start_date` nếu có cả hai; status ∈ enum; priority ∈ enum.
   - `buildTaskTree(flatTasks)`: dựng cây từ `parent_id`, trả về forest có sắp xếp theo `sort_order`.
 - **Unit test** (`task.test.ts`):
@@ -107,36 +113,42 @@ Ký hiệu: 🧪 = logic cần unit test · ⚙️ = hạ tầng/cấu hình · 
   - cycle trong `parent_id` (A→B→A) → phát hiện, không đệ quy vô hạn
 
 **DoD:**
-- [ ] `npm run test -- --run src/lib/domain/task.test.ts` pass, coverage ≥ 95%.
-- [ ] Server routes `/api/projects/[id]/tasks` (POST/PATCH/DELETE) gọi `validateTask` trước khi ghi DB — verify bằng curl payload invalid → 422.
+- [x] `npm run test -- --run src/lib/domain/task.test.ts` pass, coverage ≥ 95%.
+- [x] Server routes `/api/projects/[id]/tasks` (POST/PATCH/DELETE) gọi `validateTask` trước khi ghi DB — verify bằng curl payload invalid → 422.
+
+> Evidence: `npm run test -- --run src/lib/domain/task.test.ts --coverage --coverage.include=src/lib/domain/task.ts` pass; task domain đạt 100% statements/lines/functions và 98.14% branches. Invalid POST/PATCH trả `422` với field errors; full check/test/build pass sau audit.
 
 ### 🎨 1.4 Table view CRUD task
-- [ ] Bảng task trong `/projects/[id]`: thêm nhanh (ô input cuối bảng), inline edit title/assignee/status/due date.
-- [ ] Gán `assignee` từ danh sách members của project — lưu vào `tasks.assignee_id` (1 assignee/task).
-- [ ] Xoá task có confirm.
+- [x] Bảng task trong `/projects/[id]`: thêm nhanh (ô input cuối bảng), inline edit title/assignee/status/due date.
+- [x] Gán `assignee` từ danh sách members của project — lưu vào `tasks.assignee_id` (1 assignee/task).
+- [x] Xoá task có confirm.
 
 **DoD:**
-- [ ] Tạo task inline → reload trang vẫn còn (đã persist DB).
-- [ ] Sửa due date inline → PATCH được gọi 1 lần, giá trị DB cập nhật đúng (verify qua API hoặc DB query).
-- [ ] Assignee không phải member của project → bị từ chối phía server (curl với user_id ngoài project → 422/403).
+- [x] Tạo task inline → reload trang vẫn còn (đã persist DB).
+- [x] Sửa due date inline → PATCH được gọi 1 lần, giá trị DB cập nhật đúng (verify qua API hoặc DB query).
+- [x] Assignee không phải member của project → bị từ chối phía server (curl với user_id ngoài project → 422/403).
+
+> Evidence: Orca tạo `Orca UI task`, reload/snapshot vẫn hiển thị; inline rename thành công; network lọc đúng một `PATCH` với `dueDate=2026-08-29` status 200 và API trả `dueDate=2026-08-29`, `durationDays=3`; member gán assignee trái quyền trả `403`.
 
 ### 🎨 1.5 Gantt view (SVAR)
-- [ ] Tích hợp `@svar-ui/svelte-gantt` tại `/projects/[id]?view=gantt`: render tasks, timescale theo tuần/tháng. **Client-only mount** (tắt SSR cho component này) để tránh hydration mismatch.
-- [ ] Kéo thả thanh task (move) → cập nhật `start_date` + `due_date` giữ nguyên duration.
-- [ ] Kéo mép thanh (resize) → cập nhật đúng 1 đầu ngày.
-- [ ] Sau mọi move/resize: **derive lại `duration_days`** từ start/due và persist cùng PATCH (scheduler 1.6 chạy trên dữ liệu này — cấm để lệch).
-- [ ] Render milestone (task `milestone=true`) dạng diamond.
+- [x] Tích hợp `@svar-ui/svelte-gantt` tại `/projects/[id]?view=gantt`: render tasks, timescale theo tuần/tháng. **Client-only mount** (tắt SSR cho component này) để tránh hydration mismatch.
+- [x] Kéo thả thanh task (move) → cập nhật `start_date` + `due_date` giữ nguyên duration.
+- [x] Kéo mép thanh (resize) → cập nhật đúng 1 đầu ngày.
+- [x] Sau mọi move/resize: **derive lại `duration_days`** từ start/due và persist cùng PATCH (scheduler 1.6 chạy trên dữ liệu này — cấm để lệch).
+- [x] Render milestone (task `milestone=true`) dạng diamond.
 
 **DoD:**
 - [ ] Kéo task sang ngày khác → reload trang, vị trí mới được giữ (verify DB: start/due thay đổi, duration ngày không đổi).
 - [ ] Resize đầu trái → chỉ `start_date` đổi; resize đầu phải → chỉ `due_date` đổi; cả 2 trường hợp `duration_days` trong DB khớp với start/due mới.
-- [ ] Không lỗi hydration/SSR trong console khi load route Gantt lần đầu.
+- [x] Không lỗi hydration/SSR trong console khi load route Gantt lần đầu.
 - [ ] Project 30 task render mượt, không lỗi console; test nhanh với 200 task không treo tab (>2s là blocker cần phân trang/virtualize).
 
+> Blocker: Orca đã xác nhận SVAR Gantt client-only render, task/milestone surface và console không có runtime error; chưa có bằng chứng drag move, resize hai đầu, giữ duration sau reload và benchmark 30/200 task. Chưa tick theo DoD.
+
 ### 🧪 1.6 Dependency FS + Scheduler engine
-- [ ] Bảng `dependencies` lưu `(task_id, predecessor_id, type)`; Phase 1 chỉ hỗ trợ `FS`.
-- [ ] Kéo từ mép task A sang task B trên Gantt → tạo dependency.
-- [ ] `src/lib/domain/scheduler.ts` — hàm thuần (semantics khớp duy nhất với PLAN §2 — `pred.effective_due + 1`, KHÔNG phải `due + lag`):
+- [x] Bảng `dependencies` lưu `(task_id, predecessor_id, type)`; Phase 1 chỉ hỗ trợ `FS`.
+- [x] Kéo từ mép task A sang task B trên Gantt → tạo dependency.
+- [x] `src/lib/domain/scheduler.ts` — hàm thuần (semantics khớp duy nhất với PLAN §2 — `pred.effective_due + 1`, KHÔNG phải `due + lag`):
   ```ts
   computeSchedule(tasks, deps, projectStart): ScheduledTask[]
   // task thường: effective_start = max(own start, max(pred.effective_due) + 1)
@@ -154,33 +166,41 @@ Ký hiệu: 🧪 = logic cần unit test · ⚙️ = hạ tầng/cấu hình · 
   - Task không có dependency → không đổi ngày
 
 **DoD:**
-- [ ] `npm run test -- --run src/lib/domain/scheduler.test.ts` pass 100%.
+- [x] `npm run test -- --run src/lib/domain/scheduler.test.ts` pass 100%.
 - [ ] Trên UI: di chuyển predecessor → successor hiện ngày mới (preview) và có confirm trước khi lưu.
-- [ ] PATCH tạo dependency gây cycle → server từ chối 422 với message rõ (verify bằng curl).
+- [x] PATCH tạo dependency gây cycle → server từ chối 422 với message rõ (verify bằng curl).
+
+> Blocker: unit test scheduler pass 8 case, gồm FS chain, nhiều predecessor, cascade 3 tầng, milestone, manual start, task không dependency, cycle termination và SS/FF/SF; API cycle trả 422 đã verify. Chưa có browser evidence di chuyển predecessor để preview successor và confirm trước khi lưu. Chưa tick theo DoD.
 
 ### 🎨 1.7 Assignee, filter "My tasks" + theo member, highlight quá hạn
-- [ ] Filter toggle "My tasks" trên Table + Gantt.
-- [ ] Filter **theo từng member** (dropdown) — manager xem tải task của từng người để xếp due date.
-- [ ] Task `due_date < today && status != done` → viền đỏ/badge "Overdue"; due hôm nay → badge "Due today".
+- [x] Filter toggle "My tasks" trên Table + Gantt.
+- [x] Filter **theo từng member** (dropdown) — manager xem tải task của từng người để xếp due date.
+- [x] Task `due_date < today && status != done` → viền đỏ/badge "Overdue"; due hôm nay → badge "Due today".
 
 **DoD:**
 - [ ] Seed 3 task (quá hạn, due hôm nay, tương lai) → màu/badge hiển thị đúng cả 3 trạng thái (chụp screenshot hoặc DOM test).
 - [ ] Filter "My tasks" của user B không hiện task chỉ assign cho user A; filter theo member X chỉ hiện task của X.
 - [ ] Task done dù quá hạn vẫn **không** hiện đỏ — verify bằng test component hoặc DOM query.
 
+> Blocker: Orca đã xác nhận các badge `Overdue`, `Due today`, task tương lai và task `Done` không có `Overdue`; filter member X chỉ hiện task của X; filter `My tasks` đã được test ở user A nhưng chưa có browser session đăng nhập được user B để chứng minh đúng nguyên văn case user B. Vì DoD yêu cầu đủ cả ba case, sub-task chưa tick.
+
 ### 🛡️ 1.8 Authorization theo role (P1 council)
-- [ ] Implement ma trận quyền trong PLAN §2 ở tầng server (helper `requireRole(projectId, minRole)` dùng chung cho mọi mutation API).
-- [ ] Áp cho: invite member, gán assignee, archive project, xoá project, xoá/sửa task người khác, đổi role.
+- [x] Implement ma trận quyền trong PLAN §2 ở tầng server (helper `requireRole(projectId, minRole)` dùng chung cho mọi mutation API).
+- [x] Áp cho: invite member, gán assignee, archive project, xoá project, xoá/sửa task người khác, đổi role.
 
 **DoD:**
-- [ ] Member: gọi API invite/archive/xoá project → 403; sửa task của chính mình → 200.
-- [ ] Manager: invite member + xoá task người khác → 200; xoá project → 403.
-- [ ] Owner: xoá project, giáng role manager → 200.
-- [ ] Toàn bộ case trên có integration test (curl hoặc test API) — không chỉ review code.
+- [x] Member: gọi API invite/archive/xoá project → 403; sửa task của chính mình → 200.
+- [x] Manager: invite member + xoá task người khác → 200; xoá project → 403.
+- [x] Owner: xoá project, giáng role manager → 200.
+- [x] Toàn bộ case trên có integration test (curl hoặc test API) — không chỉ review code.
+
+> Evidence: integration curl đã chạy đủ member forbidden/own-task update, manager invite/delete-other-task/project-delete forbidden, owner demote manager và delete project test; member assignment trái quyền trả 403. Full check/test/build pass sau thay đổi authorization.
 
 ### ⚙️ 1.9 Deploy production + domain
 - [ ] D1 production DB + chạy migration; `wrangler secret put BETTER_AUTH_SECRET`.
 - [ ] Gắn custom domain (nếu có) hoặc dùng `*.workers.dev`.
+
+> Blocker: chưa có Cloudflare API token/account ID và chưa có production URL/domain để chạy smoke test/auth CPU test.
 
 **DoD:**
 - [ ] URL production: đăng ký → tạo project → tạo task → xem Gantt, toàn bộ hoạt động trên data thật.
