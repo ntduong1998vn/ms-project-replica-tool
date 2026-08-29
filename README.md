@@ -28,4 +28,10 @@ Date utility coverage can be checked with:
 npx vitest run src/lib/utils/date.test.ts --coverage --coverage.include=src/lib/utils/date.ts
 ```
 
-Production deployment requires `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, and a production `BETTER_AUTH_SECRET` configured outside the repository.
+Production deployment requires these GitHub Actions secrets:
+
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
+- `BETTER_AUTH_SECRET`
+
+The deploy workflow passes `BETTER_AUTH_SECRET` through a temporary secrets file so the first Worker deployment can create the required secret. The file is created only on the runner and is removed after deployment.
