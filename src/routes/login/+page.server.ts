@@ -2,6 +2,10 @@ import { fail, redirect } from '@sveltejs/kit';
 import { getAuth } from '$lib/server/platform';
 import type { Actions } from './$types';
 
+export function load(event: { url: URL }) {
+	return { redirectTo: event.url.searchParams.get('redirectTo') ?? '/' };
+}
+
 export const actions: Actions = {
 	default: async (event) => {
 		const formData = await event.request.formData();

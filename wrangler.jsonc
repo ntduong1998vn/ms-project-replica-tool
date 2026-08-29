@@ -11,8 +11,8 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "ms-project-replica",
-			"database_id": "1e1af529-e736-4799-9956-256238d7c65a",
+			"database_name": "ms-project-replica-db",
+			"database_id": "c662ed27-77cb-414f-a25f-dec002e2ce4e",
 			"migrations_dir": "drizzle"
 		}
 	],
