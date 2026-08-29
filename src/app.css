@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@plugin "daisyui" {
+  themes: false;
+  logs: false;
+}
+
+@plugin "daisyui/theme" {
+  name: "ms-project";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+  --color-base-100: #f5f6f2;
+  --color-base-200: #edf0eb;
+  --color-base-300: #dfe4dd;
+  --color-base-content: #17211b;
+  --color-primary: #17211b;
+  --color-primary-content: #ffffff;
+  --color-secondary: #5e7666;
+  --color-secondary-content: #ffffff;
+  --color-accent: #d95f35;
+  --color-accent-content: #ffffff;
+  --color-neutral: #26372b;
+  --color-neutral-content: #ffffff;
+  --color-info: #3d708f;
+  --color-info-content: #ffffff;
+  --color-success: #36513d;
+  --color-success-content: #ffffff;
+  --color-warning: #a05b24;
+  --color-warning-content: #ffffff;
+  --color-error: #a53e20;
+  --color-error-content: #ffffff;
+  --radius-selector: 1rem;
+  --radius-field: 0.5rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+@utility btn-pill {
+  @apply rounded-full;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.svar-gantt {
+  --wx-gantt-task-color: #d95f35;
+  --wx-gantt-task-font-color: #ffffff;
+  --wx-gantt-task-border: 1px solid #b94f2d;
+  --wx-gantt-task-border-color: #8f351d;
+  min-height: 480px;
+}
+
+.svar-gantt .wx-bar.wx-task:not(.wx-milestone) {
+  background-color: #d95f35;
+  border: 1px solid #b94f2d;
+  border-radius: 0.45rem;
+  box-sizing: border-box;
+  color: #ffffff;
+}
+
+.svar-gantt .wx-bar.wx-task:not(.wx-milestone) > .wx-content {
+  background-color: #d95f35;
+  border-radius: 0.35rem;
+  box-sizing: border-box;
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 750;
+  padding: 0 0.6rem;
+}
