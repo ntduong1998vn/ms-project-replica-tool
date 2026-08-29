@@ -4,6 +4,10 @@
 
 Implemented the DaisyUI styling foundation for the `ms-project` theme in the phase-2 worktree.
 
+## Round 1 fix
+
+Removed the duplicated `.svar-gantt` and `.wx-*` declarations from `src/routes/projects/[id]/+page.svelte`. Those effective visual rules now exist only as normal global selectors in `src/app.css`, preserving the existing terracotta task-bar colors. Formatted `src/app.css` with the repository Prettier configuration.
+
 ## Files changed for Task 1
 
 - `package.json`: added `tailwindcss`, `@tailwindcss/vite`, and `daisyui` as development dependencies. Existing Phase 1 manifest changes were preserved.
@@ -12,13 +16,15 @@ Implemented the DaisyUI styling foundation for the `ms-project` theme in the pha
 - `src/app.css`: added Tailwind, daisyUI, the complete `ms-project` semantic theme, `btn-pill`, global body defaults, and the global SVAR Gantt selectors. The terracotta task-bar colors are unchanged.
 - `src/app.html`: added `data-theme="ms-project"` to the root `<html>` element.
 - `src/routes/+layout.svelte`: imported `../app.css` immediately after the favicon import.
-- The existing Gantt selectors are also present in `src/app.css` as normal global selectors. The project-detail route is an untracked Phase 1 file in this worktree, so it was deliberately left unstaged and otherwise untouched to avoid committing the entire pre-existing route.
+- `src/routes/projects/[id]/+page.svelte`: removed the duplicated component-scoped Gantt selectors so those rules exist only in `src/app.css`; route markup and behavior were not changed.
 
 ## Verification
 
 - `npm run check`: exited 0; `svelte-check found 0 errors and 0 warnings`.
 - `npm run build`: exited 0; Vite completed both SSR and client builds and Wrangler generated worker types.
 - `git diff --check`: clean.
+- `npx prettier --check src/app.css`: exited 0; file matches repository Prettier style.
+- Round 1 duplicate check: the Gantt selectors are absent from `src/routes/projects/[id]/+page.svelte` and present in `src/app.css` only.
 
 ## Concerns
 
@@ -26,4 +32,4 @@ Implemented the DaisyUI styling foundation for the `ms-project` theme in the pha
 - Both Wrangler commands emitted an `EPERM` warning while attempting to write logs under `/Users/oanhlu/Library/Preferences/.wrangler/logs`; both commands still exited 0 and completed their requested checks.
 - npm reported five packages with install scripts not yet covered by the local `allowScripts` policy. No approval changes were made.
 - The worktree contained unrelated Phase 1 modifications and untracked files; they were preserved and not staged.
-- Because the pre-existing project-detail route is untracked, its component-scoped Gantt declarations remain in that local file in addition to the new global selectors. No route markup or behavior was changed.
+- The project-detail route originated as an untracked Phase 1 file, so the fix commit records the route file while changing only its duplicated style declarations; no route markup or behavior was altered.
