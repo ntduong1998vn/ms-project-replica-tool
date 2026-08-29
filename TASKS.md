@@ -16,38 +16,42 @@ Ký hiệu: 🧪 = logic cần unit test · ⚙️ = hạ tầng/cấu hình · 
 
 ### ⚙️ 0.1 Scaffold SvelteKit + Cloudflare adapter
 - [ ] Tạo project SvelteKit (Svelte 5, TypeScript) bằng C3, cài `adapter-cloudflare`.
-- [ ] `wrangler.jsonc` được commit (kể cả file do tool sinh).
+- [x] `wrangler.jsonc` được commit (kể cả file do tool sinh).
 
 **DoD:**
-- [ ] `npm run build` exit code 0, không lỗi adapter.
-- [ ] `npm run dev` mở được trang chủ trên localhost.
-- [ ] `npx wrangler deploy --dry-run` chạy thành công, detect đúng Workers config. (Lưu ý: `wrangler versions upload` KHÔNG có flag `--dry-run` và cũng không promote production — không dùng.)
+- [x] `npm run build` exit code 0, không lỗi adapter.
+- [x] `npm run dev` mở được trang chủ trên localhost.
+- [x] `npx wrangler deploy --dry-run` chạy thành công, detect đúng Workers config. (Lưu ý: `wrangler versions upload` KHÔNG có flag `--dry-run` và cũng không promote production — không dùng.)
+
+> Ghi chú: C3 `create-cloudflare@2.72.3` trong môi trường này trả `Unsupported framework: svelte`; đã scaffold bằng Svelte CLI chính thức với `adapter-cloudflare` tương đương.
 
 ### ⚙️ 0.2 D1 database + Drizzle ORM
 - [ ] Tạo D1 database (dev local + production), khai báo binding `DB` trong `wrangler.jsonc`; set `migrations_dir: "drizzle"` (drizzle-kit sinh migration vào `drizzle/`, khác default `migrations/` của wrangler).
-- [ ] Cài Drizzle + `drizzle.config.ts`; định nghĩa schema: các bảng better-auth mặc định (`user, session, account, verification` — KHÔNG tự thiết kế bảng `users`) + `projects, members, tasks, dependencies, invites, activities`; `tasks` có cột `assignee_id` (FK → `user.id`).
-- [ ] Tạo migration đầu tiên và chạy local.
+- [x] Cài Drizzle + `drizzle.config.ts`; định nghĩa schema: các bảng better-auth mặc định (`user, session, account, verification` — KHÔNG tự thiết kế bảng `users`) + `projects, members, tasks, dependencies, invites, activities`; `tasks` có cột `assignee_id` (FK → `user.id`).
+- [x] Tạo migration đầu tiên và chạy local.
 
 **DoD:**
-- [ ] `npx drizzle-kit generate` không lỗi; file migration SQL tồn tại trong `drizzle/`.
-- [ ] `npx wrangler d1 migrations apply <db> --local` exit 0.
-- [ ] Viết 1 endpoint test `GET /api/health` query `SELECT 1` qua binding D1 (`event.platform.env.DB`, KHÔNG dùng `$env/dynamic/private` cho binding) → trả `{"ok":true}`; verify bằng `curl localhost:5173/api/health` khi `npm run dev` (adapter-cloudflare emulate `event.platform` local qua getPlatformProxy — lưu ý: query D1 **LOCAL**, không phải production).
+- [x] `npx drizzle-kit generate` không lỗi; file migration SQL tồn tại trong `drizzle/`.
+- [x] `npx wrangler d1 migrations apply <db> --local` exit 0.
+- [x] Viết 1 endpoint test `GET /api/health` query `SELECT 1` qua binding D1 (`event.platform.env.DB`, KHÔNG dùng `$env/dynamic/private` cho binding) → trả `{"ok":true}`; verify bằng `curl localhost:5173/api/health` khi `npm run dev` (adapter-cloudflare emulate `event.platform` local qua getPlatformProxy — lưu ý: query D1 **LOCAL**, không phải production).
+
+> Blocker production: D1 remote migration cần `CLOUDFLARE_API_TOKEN`; môi trường hiện chưa cung cấp token. Local D1 đã tạo và migration thành công.
 
 ### ⚙️ 0.3 Better-auth (email/password + session)
-- [ ] Cài better-auth **pin ≥1.7.2** (chứa fix non-blocking scrypt #8685), dùng `@better-auth/drizzle-adapter` (package `@better-auth/cloudflare` KHÔNG tồn tại); expose `/api/auth/[...all]`. Mặc định hash là **scrypt** — KHÔNG viết Argon2 vào tài liệu/code.
+- [x] Cài better-auth **pin ≥1.7.2** (chứa fix non-blocking scrypt #8685), dùng `@better-auth/drizzle-adapter` (package `@better-auth/cloudflare` KHÔNG tồn tại); expose `/api/auth/[...all]`. Mặc định hash là **scrypt** — KHÔNG viết Argon2 vào tài liệu/code.
 - [ ] Set `BETTER_AUTH_SECRET`: file `.dev.vars` cho local, `wrangler secret put BETTER_AUTH_SECRET` cho production (ghi vào checklist 1.8).
-- [ ] Trang `/login` + `/register` (form SvelteKit actions).
-- [ ] Middleware `hooks.server.ts`: bảo vệ mọi route trừ `/login`, `/register`, `/invite/[token]`.
+- [x] Trang `/login` + `/register` (form SvelteKit actions).
+- [x] Middleware `hooks.server.ts`: bảo vệ mọi route trừ `/login`, `/register`, `/invite/[token]`.
 
 **DoD:**
-- [ ] Đăng ký user mới qua UI → có bản ghi trong bảng `user` (tên số ít — bảng mặc định của better-auth; kiểm tra: `npx wrangler d1 execute <db> --local --command "SELECT email FROM user"`).
-- [ ] Login thành công → chuyển về `/`, cookie session tồn tại.
-- [ ] Truy cập route bảo vệ khi **chưa** login → redirect về `/login` (verify bằng curl: `curl -s -o /dev/null -w '%{http_code}' localhost:5173/projects` trả 3xx).
-- [ ] Login sai mật khẩu → hiện lỗi, không tạo session.
+- [x] Đăng ký user mới qua UI → có bản ghi trong bảng `user` (tên số ít — bảng mặc định của better-auth; kiểm tra: `npx wrangler d1 execute <db> --local --command "SELECT email FROM user"`).
+- [x] Login thành công → chuyển về `/`, cookie session tồn tại.
+- [x] Truy cập route bảo vệ khi **chưa** login → redirect về `/login` (verify bằng curl: `curl -s -o /dev/null -w '%{http_code}' localhost:5173/projects` trả 3xx).
+- [x] Login sai mật khẩu → hiện lỗi, không tạo session.
 - [ ] Ghi chú: scrypt có thể vượt CPU time limit Workers lúc sign-up trên **production** (issue #8860) mà local không tái hiện được → DoD verify CPU nằm ở task **1.9** (đăng ký ≥5 lần trên production). Không đóng Phase 1 khi chưa đạt mục đó.
 
 ### 🧪 0.4 Utility ngày tháng (date utils)
-- [ ] File `src/lib/utils/date.ts`: `parseDate`, `formatDate`, `addDays`, `daysBetween`, `isOverdue(dueDate, now)`, `startOfWeek/Monday`.
+- [x] File `src/lib/utils/date.ts`: `parseDate`, `formatDate`, `addDays`, `daysBetween`, `isOverdue(dueDate, now)`, `startOfWeek/Monday`.
 - **Unit test** (`date.test.ts`):
   - `addDays('2025-01-31', 1)` → `'2025-02-01'`
   - `daysBetween` đúng kể cả vắt qua năm nhuận
@@ -55,17 +59,19 @@ Ký hiệu: 🧪 = logic cần unit test · ⚙️ = hạ tầng/cấu hình · 
   - parse/format round-trip không lệch timezone (test với TZ khác nhau nếu được)
 
 **DoD:**
-- [ ] `npm run test -- --run src/lib/utils/date.test.ts` pass 100%, coverage các hàm ≥ 95%.
-- [ ] Không dùng `new Date(string)` trực tiếp cho date-only (phải parse thủ công hoặc dùng UTC để tránh lệch timezone) — grep xác nhận.
+- [x] `npm run test -- --run src/lib/utils/date.test.ts` pass 100%, coverage các hàm ≥ 95%.
+- [x] Không dùng `new Date(string)` trực tiếp cho date-only (phải parse thủ công hoặc dùng UTC để tránh lệch timezone) — grep xác nhận.
 
 ### ⚙️ 0.5 CI/CD GitHub Actions
-- [ ] Workflow: push `main` → `npm run check + test + build` → `wrangler deploy` (KHÔNG dùng `wrangler versions upload` — chỉ upload version, không promote production).
+- [x] Workflow: push `main` → `npm run check + test + build` → `wrangler deploy` (KHÔNG dùng `wrangler versions upload` — chỉ upload version, không promote production).
 - [ ] Secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` cấu hình trong repo settings (bước manual — đánh dấu nếu chưa làm được).
 
 **DoD:**
 - [ ] Push 1 commit → workflow chạy xanh cả 2 job (check+test, deploy).
 - [ ] URL **production** thực sự phục vụ build mới: verify bằng version/asset hash hoặc route health trả git SHA — KHÔNG chỉ dựa vào "workflow xanh".
 - [ ] Nếu chưa có quyền cấu hình secret: ghi blocker rõ ràng trong file này, KHÔNG tick mục này.
+
+> Blocker CI/production: chưa có quyền push commit lên remote, cấu hình GitHub secrets hoặc xác minh URL production trong môi trường này; workflow đã thêm tại `.github/workflows/ci.yml` và deploy dùng `wrangler deploy`.
 
 ---
 

@@ -1,0 +1,21 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "ms-project-replica",
+	"compatibility_date": "2026-08-29",
+	"compatibility_flags": ["nodejs_als"],
+	"main": ".svelte-kit/cloudflare/_worker.js",
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".svelte-kit/cloudflare"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "ms-project-replica",
+			"database_id": "1e1af529-e736-4799-9956-256238d7c65a",
+			"migrations_dir": "drizzle"
+		}
+	],
+	"workers_dev": true,
+	"preview_urls": true
+}
